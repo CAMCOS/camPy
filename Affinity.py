@@ -1,6 +1,7 @@
 import numpy as np
 import scipy.sparse as sparse
 import scipy.sparse.linalg
+import sklearn.metrics as metrics
 import time
 
 def NN_graph(X,k,metric,use_values=False,verbose = True):
