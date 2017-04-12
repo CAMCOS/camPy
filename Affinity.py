@@ -1,10 +1,9 @@
 import numpy as np
 import scipy.sparse as sparse
-import scipy.sparse.linalg
 import sklearn.metrics as metrics
 import time
 
-def NN_graph(X,k,metric,use_values=False,verbose = True):
+def NN_graph(X,k,metric='cosine',use_values=True,f=lambda x:1-x,verbose = True):
     start_time = time.time()
     row = np.zeros(X.shape[0]*k,dtype=np.uint16)
     column = np.zeros(X.shape[0]*k,dtype=np.uint16)
@@ -20,7 +19,7 @@ def NN_graph(X,k,metric,use_values=False,verbose = True):
         row[n:(n+k)] = i
         column[n:(n + k)] = index[1:(k+1)]
         if use_values == True:
-            values[n:(n+k)] = dists[0,index[1:(k+1)]]
+            values[n:(n+k)] = f(dists[0,index[1:(k+1)]])
         n += k
         if verbose:
             if time.time() -  elapsed_time - start_time > 30:
