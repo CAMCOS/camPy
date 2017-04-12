@@ -31,7 +31,7 @@ def NN_graph(X,k,metric,use_values=False,verbose = True):
                     np.round(avg,1),
                     "seconds more ")
     if use_values == True:
-        NN = sparse.csr_matrix((np.array(values)),
+        NN = sparse.csr_matrix((np.array(values),
                             (np.array(row), np.array(column))),
                            dtype=np.float16)
     else:
