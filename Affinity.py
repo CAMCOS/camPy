@@ -20,7 +20,7 @@ def NN_graph(X,k,metric,use_values=False,verbose = True):
         row[n:(n+k)] = i
         column[n:(n + k)] = index[1:(k+1)]
         if use_values == True:
-            values[n:(n+k)] = dists[index[1:(k+1)]]
+            values[n:(n+k)] = dists[0,index[1:(k+1)]]
         n += k
         if verbose:
             if time.time() -  elapsed_time - start_time > 30:
