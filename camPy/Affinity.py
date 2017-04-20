@@ -1,7 +1,10 @@
+from __future__ import division, absolute_import, print_function
+
 import numpy as np
 import scipy.sparse as sparse
 import sklearn.metrics as metrics
 import time
+
 
 def NN_graph(X,k,metric='cosine',use_values=True,f=lambda x:1-x,verbose = True):
     start_time = time.time()
@@ -44,3 +47,4 @@ def NN_graph(X,k,metric='cosine',use_values=True,f=lambda x:1-x,verbose = True):
                             (np.array(row), np.array(column))),
                            dtype=np.float16)
     return 0.5*(NN+NN.transpose())
+
