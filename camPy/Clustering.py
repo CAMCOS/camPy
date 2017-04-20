@@ -1,50 +1,38 @@
 from __future__ import division, absolute_import, print_function
 
 import numpy as np
-import scipy.sparse as sparse
+import scipy.sparse
+import scipy.sparse.linalg
+import sklearn.preprocessing as pp
+import sklearn.cluster
+from scipy.sparse.linalg.eigen.arpack import eigsh
 import sklearn.metrics as metrics
-import time
 
+#class spectral_clustering():
+#    def __init__(self):
+#        self
 
-def NN_graph(X,k,metric='cosine',use_values=True,f=lambda x:1-x,verbose = True):
-    start_time = time.time()
-    row = np.zeros(X.shape[0]*k,dtype=np.uint16)
-    column = np.zeros(X.shape[0]*k,dtype=np.uint16)
-    if use_values == True:
-        values = np.zeros(X.shape[0]*k)
-    n = 0
-    elapsed_time = -20
-    for i in np.arange(X.shape[0]):
-        if sparse.issparse(X):
-            dists = metrics.pairwise.pairwise_distances(X[i, 0:],
-                                                        X,
-                                                        metric=metric)
-        else:
-            dists = metrics.pairwise.pairwise_distances(X[i, 0:].reshape(1,-1),
-                                                    X,
-                                                    metric=metric)
-        index = np.argpartition(dists[0,0:],k+1)
-        row[n:(n+k)] = i
-        column[n:(n + k)] = index[1:(k+1)]
-        if use_values == True:
-            values[n:(n+k)] = f(dists[0,index[1:(k+1)]])
-        n += k
-        if verbose:
-            if time.time() -  elapsed_time - start_time > 30:
-                elapsed_time = (time.time()-start_time)
-                avg = (elapsed_time / i)*(X.shape[0]-i)
-                print("This has taken ",
-                    np.round(elapsed_time,1),
-                    "seconds and is expected to take ",
-                    np.round(avg,1),
-                    "seconds more ")
-    if use_values == True:
-        NN = sparse.csr_matrix((np.array(values),
-                            (np.array(row), np.array(column))),
-                           dtype=np.float16)
-    else:
-        NN = sparse.csr_matrix((np.repeat(1, np.array(row).size),
-                            (np.array(row), np.array(column))),
-                           dtype=np.float16)
-    return 0.5*(NN+NN.transpose())
+def spectral_njw(affinity,n_clusters,compute_probs=False,metric='euclidean'):
+    affinity= affinity - scipy.sparse.diags(np.array(affinity.diagonal()).ravel(),0)
+    D = scipy.sparse.diags(np.array(np.divide(1,np.sqrt(affinity.sum(axis=1)))).ravel(),dtype=np.float64)
+    L = D*affinity*D
+    w,v = eigsh(L,k=n_clusters,tol=1e-5)
+    v = pp.normalize(v,axis=1)
+    clusterer = sklearn.cluster.KMeans(n_clusters)
+    l= clusterer.fit_predict(v[0:,-n_clusters:-1])
+    if compute_probs ==True:
+        dists = metrics.pairwise.pairwise_distances(v[0:,-n_clusters:-1],clusterer.cluster_centers_,metric=metric)
+        probs = dists[np.arange(l.shape[0]),l]/np.sum(dists,axis = 1)
+        return l,probs**-1
+    return l
 
+def diffusion(affinity,n_clusters,alpha,t):
+    affinity = affinity - scipy.sparse.diags(np.array(affinity.diagonal()).ravel(), 0)
+    D_alpha = scipy.sparse.diags(np.array(np.power(affinity.sum(axis=1),-alpha)).ravel(),dtype=np.float64)
+    affinity = D_alpha*affinity*D_alpha
+    D = scipy.sparse.diags(np.array(np.power(affinity.sum(axis=1), -1)).ravel(), dtype=np.float64)
+    L_alpha = D*affinity*D
+    w, v = eigsh(L_alpha, k=n_clusters, tol=1e-5)
+    v = v*np.power(w,t)
+    c, l, i = sklearn.cluster.k_means(v[0:, -n_clusters:-1], n_clusters)
+    return l
