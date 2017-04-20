@@ -4,3 +4,7 @@ A repository for CAMcos PYthon code
 ```
 pip install git+https://github.com/CAMCOS/camPy.git
 ```
+# Upgrade
+```
+pip install git+https://github.com/CAMCOS/camPy.git --upgrade
+```
