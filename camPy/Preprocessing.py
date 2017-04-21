@@ -11,11 +11,13 @@ class preprocessing():
     """
     def __init__(self,matrix):
         self.ppmatrix = matrix
-        self.index = np.arange(matrix.shape[1])
+        self.index = np.ones(matrix.shape[1],dtype=np.bool)
 
     def remove_columns_less_than_one(self):
-        self.index = self.index[np.array(self.ppmatrix.sum(axis=0) > 1).ravel()]
-        self.ppmatrix = self.ppmatrix[0:,np.array(self.ppmatrix.sum(axis=0) >1).ravel()]
+        temp = np.arange(self.index.shape[0])[self.index]
+        test = np.array(self.ppmatrix.sum(axis=0) > 1).ravel()
+        self.index[temp[test==False]] = False
+        self.ppmatrix = self.ppmatrix[0:,test]
 
     def make_binary(self):
         self.ppmatrix = self.ppmatrix.astype(bool)
@@ -29,13 +31,19 @@ class preprocessing():
 
     def remove_common_columns(self,occurance):
         col_occurance = factor_weighting(self.ppmatrix).col_occurance
-        self.index = self.index[np.array(col_occurance < occurance).ravel()]
+        test = np.array(col_occurance < occurance).ravel()
+        temp = np.arange(self.index.shape[0])[self.index]
+        self.index[temp[test==False]] = False
         self.ppmatrix = self.ppmatrix[0:, np.array(col_occurance < occurance).ravel()]
 
     def LSA(self,n_components):
         pca = sklearn.decomposition.TruncatedSVD(n_components=n_components)
         pca.fit(self.ppmatrix)
         self.ppmatrix = pca.transform(self.ppmatrix)
+
+    def PCA(self,n_components):
+        u, s, v = scipy.sparse.linalg.svds(self.ppmatrix,k=n_components)
+        self.ppmatrix = self.ppmatrix*v.transpose()
 
     def do_it_all(self,occurance=0.6,norm='l2',weighting='IDF',n_components = 100):
         self.remove_columns_less_than_one()
