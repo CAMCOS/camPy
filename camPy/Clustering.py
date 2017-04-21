@@ -20,10 +20,6 @@ def spectral_njw(affinity,n_clusters,compute_probs=False,metric='euclidean'):
     v = pp.normalize(v,axis=1)
     clusterer = sklearn.cluster.KMeans(n_clusters)
     l= clusterer.fit_predict(v[0:,-n_clusters:-1])
-    if compute_probs ==True:
-        dists = metrics.pairwise.pairwise_distances(v[0:,-n_clusters:-1],clusterer.cluster_centers_,metric=metric)
-        probs = dists[np.arange(l.shape[0]),l]/np.sum(dists,axis = 1)
-        return l,probs**-1
     return l
 
 def diffusion(affinity,n_clusters,alpha,t):
