@@ -27,8 +27,8 @@ def diffusion(affinity,n_clusters,alpha,t):
     D_alpha = scipy.sparse.diags(np.array(np.power(affinity.sum(axis=1),-alpha)).ravel(),dtype=np.float64)
     affinity = D_alpha*affinity*D_alpha
     D = scipy.sparse.diags(np.array(np.power(affinity.sum(axis=1), -1)).ravel(), dtype=np.float64)
-    L_alpha = D*affinity*D
-    w, v = eigsh(L_alpha, k=n_clusters, tol=1e-5)
+    affinity = D*affinity*D
+    w, v = eigsh(affinity, k=n_clusters, tol=1e-5)
     v = v*np.power(w,t)
     c, l, i = sklearn.cluster.k_means(v[0:, -n_clusters:-1], n_clusters)
     return l
