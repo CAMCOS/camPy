@@ -49,9 +49,9 @@ class preprocessing():
         self.remove_columns_less_than_one()
         self.remove_common_columns(occurance)
         self.make_binary()
-        self.normalize_rows(norm)
         self.column_weighting(weighting)
-        self.LSA(n_components=n_components)
+        self.normalize_rows(norm)
+        self.PCA(n_components=n_components)
         return self.ppmatrix
 
 class factor_weighting():
