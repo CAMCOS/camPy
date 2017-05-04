@@ -27,7 +27,7 @@ class preprocessing():
 
     def column_weighting(self,type):
         weighter = factor_weighting(self.ppmatrix)
-        self.ppmatrix = self.ppmatrix*getattr(weighter, type)()
+        self.ppmatrix = self.ppmatrix*getattr(weighter, type)(power=2)
 
     def remove_common_columns(self,occurance):
         col_occurance = factor_weighting(self.ppmatrix).col_occurance
