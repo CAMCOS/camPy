@@ -25,9 +25,9 @@ class preprocessing():
     def normalize_rows(self,type):
         self.ppmatrix = sklearn.preprocessing.normalize(self.ppmatrix, axis=1, norm=type)
 
-    def column_weighting(self,type):
+    def column_weighting(self,type,par):
         weighter = factor_weighting(self.ppmatrix)
-        self.ppmatrix = self.ppmatrix*getattr(weighter, type)(power=2)
+        self.ppmatrix = self.ppmatrix*getattr(weighter, type)(par)
 
     def remove_common_columns(self,occurance):
         col_occurance = factor_weighting(self.ppmatrix).col_occurance
