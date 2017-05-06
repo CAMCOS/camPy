@@ -23,6 +23,7 @@ def NN_graph(X,k,metric='cosine',use_values=True,f=lambda x:1-x,verbose = True):
             dists = metrics.pairwise.pairwise_distances(X[i, 0:].reshape(1,-1),
                                                     X,
                                                     metric=metric)
+        dists = dists*(dists>0)
         index = np.argpartition(dists[0,0:],k+1)
         row[n:(n+k)] = i
         column[n:(n + k)] = index[1:(k+1)]
@@ -61,6 +62,7 @@ def NN_graph_fast(X,k,metric='cosine',use_values=True,f=lambda x:1-x,verbose = T
         dists = metrics.pairwise.pairwise_distances(X[i:(i+by), 0:],
                                                     X,
                                                     metric=metric)
+        dists = dists*(dists>0)
         index = np.argsort(dists[0:,0:],axis=1)[0:,:k+1]
         by = dists.shape[0]
         x = np.arange(start=i,stop=(i+by))
